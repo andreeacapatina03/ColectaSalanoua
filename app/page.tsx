@@ -47,16 +47,16 @@ function LiveDot() {
 // Emoji + label per milestone
 function getMilestoneEmoji(m: number): { emoji: string; label: string } {
   const map: Record<number, { emoji: string; label: string }> = {
-    10000:  { emoji: "🌱", label: "Primul pas" },
-    20000:  { emoji: "🔥", label: "Prinde avânt" },
-    30000:  { emoji: "⚡", label: "Energie!" },
-    40000:  { emoji: "🚀", label: "Decolăm" },
-    50000:  { emoji: "💎", label: "Jumătate de drum" },
-    60000:  { emoji: "🌊", label: "Val puternic" },
-    70000:  { emoji: "🏔️", label: "Aproape de vârf" },
-    80000:  { emoji: "✨", label: "Strălucitor" },
-    90000:  { emoji: "🎯", label: "Țintă în vizor" },
-    100000: { emoji: "👑", label: "Legendar" },
+    10000:  { emoji: "🌱", label: "Pilon 1: Pe calea cea buna!" },
+    20000:  { emoji: "🔥", label: "Pilon 2: În duhul de acțiune!" },
+    30000:  { emoji: "⚡", label: "Pilon 3: Un pas mai aproape de noul nostru loc!" },
+    40000:  { emoji: "🚀", label: "Pilon 4: Privim în viitor!" },
+    50000:  { emoji: "💎", label: "Pilon 5: Și mai aproape de țintă!" },
+    60000:  { emoji: "🌊", label: "Pilon 6: Prin credință!" },
+    70000:  { emoji: "🏔️", label: "Pilon 7: Construim!" },
+    80000:  { emoji: "✨", label: "" },
+    90000:  { emoji: "🎯", label: "" },
+    100000: { emoji: "👑", label: "" },
   };
   if (map[m]) return map[m];
   if (m > 100000) return { emoji: "🏆", label: `${m / 1000}k` };
