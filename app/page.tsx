@@ -21,6 +21,29 @@ function formatDate(dateStr: string) {
   });
 }
 
+// Sub-componentă curată pentru punctul Live (folosește Framer Motion)
+function LiveDot() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4 }}>
+      <div style={{ position: "relative", width: 6, height: 6 }}>
+        <motion.div
+          style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            background: "rgba(201,168,76,0.5)",
+          }}
+          animate={{ scale: [1, 3], opacity: [1, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+        />
+        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#c9a84c" }} />
+      </div>
+      <span style={{
+        fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+        color: "rgba(201,168,76,0.45)", fontFamily: "var(--font-inter)", fontWeight: 500,
+      }}>Live</span>
+    </div>
+  );
+}
+
 // Emoji + label per milestone
 function getMilestoneEmoji(m: number): { emoji: string; label: string } {
   const map: Record<number, { emoji: string; label: string }> = {
@@ -50,13 +73,11 @@ function MilestoneTrack({ suma }: { suma: number }) {
   const nextMilestone = currentMilestone + MILESTONE_STEP;
   const segmentProgress = ((suma - currentMilestone) / MILESTONE_STEP) * 100;
 
-  // Show max last 4 reached + next incoming
   const visible = reachedMilestones.slice(-4);
 
   return (
     <div className="w-full flex flex-col gap-5">
-
-      {/* Progress fill bar — segment only */}
+      {/* Progress fill bar */}
       <div style={{ position: "relative" }}>
         <div style={{
           height: 2,
@@ -76,7 +97,6 @@ function MilestoneTrack({ suma }: { suma: number }) {
           />
         </div>
 
-        {/* Next milestone hint */}
         <div style={{
           position: "absolute", right: 0, top: 8,
           fontSize: 10, color: "rgba(238,234,224,0.2)",
@@ -106,12 +126,8 @@ function MilestoneTrack({ suma }: { suma: number }) {
                     gap: 12,
                     padding: "10px 14px",
                     borderRadius: 12,
-                    background: isLatest
-                      ? "rgba(201,168,76,0.07)"
-                      : "rgba(255,255,255,0.02)",
-                    border: isLatest
-                      ? "1px solid rgba(201,168,76,0.18)"
-                      : "1px solid rgba(255,255,255,0.04)",
+                    background: isLatest ? "rgba(201,168,76,0.07)" : "rgba(255,255,255,0.02)",
+                    border: isLatest ? "1px solid rgba(201,168,76,0.18)" : "1px solid rgba(255,255,255,0.04)",
                   }}
                 >
                   <span style={{ fontSize: isLatest ? 22 : 18, lineHeight: 1 }}>{emoji}</span>
@@ -151,7 +167,7 @@ function MilestoneTrack({ suma }: { suma: number }) {
         </div>
       )}
 
-      {/* Empty state — no milestones yet */}
+      {/* Empty state */}
       {visible.length === 0 && (
         <div style={{
           textAlign: "center",
@@ -225,44 +241,28 @@ export default function HomePage() {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <BackgroundOrbs />
-        <div style={{
-          width: 22, height: 22, borderRadius: "50%",
-          border: "1.5px solid rgba(201,168,76,0.15)",
-          borderTopColor: "#c9a84c",
-          animation: "spin 0.9s linear infinite",
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <motion.div
+          style={{
+            width: 22, height: 22, borderRadius: "50%",
+            border: "1.5px solid rgba(201,168,76,0.15)",
+            borderTopColor: "#c9a84c",
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+        />
       </div>
     );
   }
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center px-5 py-16 overflow-hidden">
+    <main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
       <BackgroundOrbs />
       <Confetti active={showConfetti} />
 
-      <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-10">
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
 
         {/* Header */}
-        
-        
-          {/* Live dot */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <div style={{ position: "relative", width: 6, height: 6 }}>
-              <div style={{
-                position: "absolute", inset: 0, borderRadius: "50%",
-                background: "rgba(201,168,76,0.5)",
-                animation: "pulse-live 2s ease-out infinite",
-              }} />
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#c9a84c" }} />
-            </div>
-            <span style={{
-              fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
-              color: "rgba(201,168,76,0.45)", fontFamily: "var(--font-inter)", fontWeight: 500,
-            }}>Live</span>
-          </div>
-
-           <motion.div
+        <motion.div
           className="flex flex-col items-center gap-3 text-center"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -308,7 +308,8 @@ export default function HomePage() {
           >
             Colectă Sala Nouă
           </h1>
-          
+
+          <LiveDot />
         </motion.div>
 
         {/* Big animated number */}
@@ -330,26 +331,28 @@ export default function HomePage() {
             key={flashKey}
             animate={flashKey > 0 ? { scale: [1, 1.03, 1] } : {}}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{ display: "flex", alignItems: "baseline", gap: 10 }}
+            className="flex items-baseline justify-center gap-2"
           >
-            <AnimatedNumber
-              value={suma}
+            <span
               style={{
                 fontFamily: "var(--font-dm-mono)",
-                fontSize: "clamp(3.2rem, 13vw, 5rem)",
-                fontWeight: 300,
+                fontSize: "clamp(2.6rem, 9vw, 3.8rem)",
+                fontWeight: 500,
                 color: "#c9a84c",
-                letterSpacing: "-0.04em",
+                textShadow: "0 0 30px rgba(201,168,76,0.4)",
+                letterSpacing: "-0.03em",
                 lineHeight: 1,
-                textShadow: "0 0 40px rgba(201,168,76,0.25)",
-              } as React.CSSProperties}
-            />
+              }}
+            >
+              <AnimatedNumber value={suma} />
+            </span>
+            
             <span style={{
-              fontFamily: "var(--font-inter)",
+              fontFamily: "var(--font-syne)",
               fontSize: "clamp(1rem, 3.5vw, 1.4rem)",
               color: "rgba(201,168,76,0.3)",
               fontWeight: 400,
-              paddingBottom: 6,
+              paddingBottom: 2,
               letterSpacing: "0.02em",
             }}>
               RON

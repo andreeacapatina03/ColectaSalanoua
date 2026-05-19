@@ -1,45 +1,97 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "SalanouaAdjud";
+
+// 1. GET: Calculează suma totală și returnează istoricul
 export async function GET() {
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  const { data, error } = await supabase
-    .from("colecta")
-    .select("*")
-    .order("id", { ascending: true })
-    .limit(1)
-    .single();
+  try {
+    const { data: tranzactii, error: tError } = await supabase
+      .from("tranzactii")
+      .select("id, suma_adaugata, created_at, comentariu")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (tError) throw tError;
+
+    const sumaTotala = tranzactii?.reduce((acc, curr) => acc + Number(curr.suma_adaugata), 0) || 0;
+    const ultimaActualizare = tranzactii && tranzactii.length > 0 ? tranzactii[0].created_at : new Date().toISOString();
+
+    return NextResponse.json({
+      suma: sumaTotala,
+      updated_at: ultimaActualizare,
+      istoric: tranzactii || []
+    });
+  } catch (error) {
+    return NextResponse.json({ error: "Eroare la preluarea datelor" }, { status: 500 });
   }
-  return NextResponse.json(data);
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { suma, password } = body;
+// 2. POST: Adaugă o nouă tranzacție
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { suma_noua, comentariu, password } = body;
 
-  // Check admin password
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Acces interzis." }, { status: 401 });
+    if (password !== ADMIN_PASSWORD) {
+      return NextResponse.json({ error: "Parolă incorectă" }, { status: 401 });
+    }
+
+    if (suma_noua === undefined) {
+      return NextResponse.json({ success: true });
+    }
+
+    const { error: insertError } = await supabase
+      .from("tranzactii")
+      .insert([
+        { 
+          suma_adaugata: parseFloat(suma_noua), 
+          comentariu: comentariu
+        }
+      ]);
+
+    if (insertError) throw insertError;
+
+    const { data: toate } = await supabase.from("tranzactii").select("suma_adaugata");
+    const sumaTotala = toate?.reduce((acc, curr) => acc + Number(curr.suma_adaugata), 0) || 0;
+
+    return NextResponse.json({ success: true, suma: sumaTotala });
+  } catch (error) {
+    return NextResponse.json({ error: "Eroare la salvare" }, { status: 500 });
   }
+}
 
-  const supabase = createClient(supabaseUrl, supabaseKey);
+// 3. DELETE REPARAT: Citim id și password direct din JSON body
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, password } = body;
 
-  // Update the first row
-  const { data, error } = await supabase
-    .from("colecta")
-    .update({ suma, updated_at: new Date().toISOString() })
-    .eq("id", 1)
-    .select()
-    .single();
+    if (password !== ADMIN_PASSWORD) {
+      return NextResponse.json({ error: "Parolă incorectă" }, { status: 401 });
+    }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!id) {
+      return NextResponse.json({ error: "ID-ul lipsește" }, { status: 400 });
+    }
+
+    // Ștergem rândul din Supabase
+    const { error: deleteError } = await supabase
+      .from("tranzactii")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    // Recalculăm suma totală live
+    const { data: toate } = await supabase.from("tranzactii").select("suma_adaugata");
+    const sumaTotala = toate?.reduce((acc, curr) => acc + Number(curr.suma_adaugata), 0) || 0;
+
+    return NextResponse.json({ success: true, suma: sumaTotala });
+  } catch (error) {
+    return NextResponse.json({ error: "Eroare la ștergerea tranzacției" }, { status: 500 });
   }
-  return NextResponse.json(data);
 }
