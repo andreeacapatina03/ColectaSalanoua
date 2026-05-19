@@ -7,6 +7,7 @@ import AnimatedNumber from "@/components/AnimatedNumber";
 import BackgroundOrbs from "@/components/BackgroundOrbs";
 import Confetti from "@/components/Confetti";
 
+
 const MILESTONE_STEP = 10000;
 
 function getMilestone(suma: number): number {
@@ -47,13 +48,13 @@ function LiveDot() {
 // Emoji + label per milestone
 function getMilestoneEmoji(m: number): { emoji: string; label: string } {
   const map: Record<number, { emoji: string; label: string }> = {
-    10000:  { emoji: "🌱", label: "Pilon 1: Pe calea cea buna!" },
-    20000:  { emoji: "🔥", label: "Pilon 2: În duhul de acțiune!" },
-    30000:  { emoji: "⚡", label: "Pilon 3: Un pas mai aproape de noul nostru loc!" },
-    40000:  { emoji: "🚀", label: "Pilon 4: Privim în viitor!" },
-    50000:  { emoji: "💎", label: "Pilon 5: Și mai aproape de țintă!" },
-    60000:  { emoji: "🌊", label: "Pilon 6: Prin credință!" },
-    70000:  { emoji: "🏔️", label: "Pilon 7: Construim!" },
+    10000:  { emoji: "🌱", label: "Jalon 1: Pe calea cea buna!" },
+    20000:  { emoji: "🔥", label: "Jalon 2: În duhul de acțiune!" },
+    30000:  { emoji: "⚡", label: "Jalon 3: Un pas mai aproape de noul nostru loc!" },
+    40000:  { emoji: "🚀", label: "Jalon 4: Privim în viitor!" },
+    50000:  { emoji: "💎", label: "Jalon 5: Și mai aproape de țintă!" },
+    60000:  { emoji: "🌊", label: "Jalon 6: Prin credință!" },
+    70000:  { emoji: "🏔️", label: "Jalon 7: Construim!" },
     80000:  { emoji: "✨", label: "" },
     90000:  { emoji: "🎯", label: "" },
     100000: { emoji: "👑", label: "" },
@@ -177,7 +178,7 @@ function MilestoneTrack({ suma }: { suma: number }) {
           fontFamily: "var(--font-inter)",
           letterSpacing: "0.05em",
         }}>
-          Primul jalonul la {new Intl.NumberFormat("ro-RO").format(MILESTONE_STEP)} RON ✦
+          Primul jalon la {new Intl.NumberFormat("ro-RO").format(MILESTONE_STEP)} RON 
         </div>
       )}
     </div>
